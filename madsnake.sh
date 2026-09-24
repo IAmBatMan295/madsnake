@@ -50,10 +50,6 @@ elif command -v alacritty >/dev/null; then
     TERM_CMD="alacritty"
 elif command -v foot >/dev/null; then
     TERM_CMD="foot"
-elif command -v wezterm >/dev/null; then
-    TERM_CMD="wezterm"
-elif command -v ghostty >/dev/null; then
-    TERM_CMD="ghostty"
 else
     TERM_CMD="xterm"
 fi
@@ -71,14 +67,6 @@ case "$TERM_CMD" in
     *alacritty*)
         # alacritty blocks by default.
         alacritty --class madsnake -o "window.startup_mode='Fullscreen'" -o "font.size=4" -o "colors.primary.background='#000000'" -e "$BIN_PATH" 2>/dev/null
-        ;;
-    *wezterm*)
-        # wezterm start blocks
-        wezterm start --class madsnake --always-new-process --config font_size=4 -- "$BIN_PATH" 2>/dev/null 
-        ;;
-    *ghostty*)
-        # ghostty cli
-        ghostty --class=madsnake --font-size=4 --background=000000 --window-state=fullscreen -e "$BIN_PATH" 2>/dev/null
         ;;
     *)
         # Fallback for unknown terminals

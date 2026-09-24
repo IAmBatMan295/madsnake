@@ -7,7 +7,7 @@ A highly optimized, ultra-lightweight terminal screensaver for Hyprland.
 ## Requirements (Dependencies)
 
 - `hypridle`: For idle detection and triggering.
-- A modern terminal emulator (e.g., Kitty, Alacritty, Foot, WezTerm, Ghostty, etc.)
+- A modern terminal emulator (e.g., Kitty, Alacritty, Foot etc.)
 - `brightnessctl`: For dimming screen brightness.
 - `cmake` and `gcc`: For compiling.
 - `ncurses`: C library for rendering.
@@ -58,7 +58,7 @@ max_length=20
 
 ## Hyprland Window Rule (Fullscreen Fallback)
 
-The launcher script automatically passes native fullscreen arguments for modern terminals (Kitty, Alacritty, Foot, WezTerm, Ghostty). However, to guarantee the window is perfectly fullscreened regardless of the terminal you use, add this universal window rule to your `~/.config/hypr/hyprland.conf`:
+The launcher script automatically passes native fullscreen arguments for modern terminals (Kitty, Alacritty, Foot, ). However, to guarantee the window is perfectly fullscreened regardless of the terminal you use, add this universal window rule to your `~/.config/hypr/hyprland.conf`:
 
 ```ini
 windowrulev2 = fullscreen, title:(madsnake)
