@@ -1,3 +1,0 @@
-/home/kunjan/Desktop/cpg/MadSnake/build/CMakeFiles/madsnake.dir
-/home/kunjan/Desktop/cpg/MadSnake/build/CMakeFiles/edit_cache.dir
-/home/kunjan/Desktop/cpg/MadSnake/build/CMakeFiles/rebuild_cache.dir
