@@ -2,6 +2,8 @@
 
 A highly optimized, ultra-lightweight terminal screensaver for Hyprland.
 
+![MadSnake Demo](madsnake.gif)
+
 ## Requirements (Dependencies)
 
 - `hypridle`: For idle detection and triggering.
