@@ -5,6 +5,13 @@ SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 CONFIG_FILE="$HOME/.config/madsnake/config"
 
 # Do not trigger if the laptop lid is closed
+
+# Ensure only one instance runs at a time
+exec 9>/tmp/madsnake.lock
+if ! flock -n 9; then
+    exit 0
+fi
+
 if grep -iq closed /proc/acpi/button/lid/*/state 2>/dev/null; then
     exit 0
 fi
