@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # MadSnake Installer
 
 echo "Building MadSnake..."

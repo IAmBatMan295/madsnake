@@ -7,7 +7,8 @@ CONFIG_FILE="$HOME/.config/madsnake/config"
 # Do not trigger if the laptop lid is closed
 
 # Ensure only one instance runs at a time
-exec 9>/tmp/madsnake.lock
+LOCKFILE="${XDG_RUNTIME_DIR:-$HOME/.cache}/madsnake.lock"
+exec 9>"$LOCKFILE"
 if ! flock -n 9; then
     exit 0
 fi
@@ -37,7 +38,7 @@ fi
 if [ -x "$SCRIPT_DIR/build/madsnake" ]; then
     BIN_PATH="$SCRIPT_DIR/build/madsnake"
 else
-    BIN_PATH="madsnake-bin"
+    BIN_PATH="/usr/local/bin/madsnake-bin"
 fi
 
 # Find terminal

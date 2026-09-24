@@ -730,6 +730,7 @@ int main(void)
     leaveok(stdscr, TRUE);
     printf("\033[?25l");
     printf("\033]0;madsnake\007");
+    printf("\033[?1004h"); /* Enable focus tracking */
     fflush(stdout);
     nodelay(stdscr, TRUE);
     keypad(stdscr, TRUE);
@@ -788,10 +789,8 @@ int main(void)
                                   BUTTON3_PRESSED | BUTTON4_PRESSED |
                                   BUTTON5_PRESSED)))
                     quit = 1;
-            } else if (ch == KEY_RESIZE) {
-                /* Reinit grid on resize */
-                grid_init();
             } else {
+                /* Any other key, including KEY_RESIZE, terminates */
                 quit = 1;
             }
         }
@@ -802,6 +801,7 @@ int main(void)
         napms(speed_ms);
     }
 
+    printf("\033[?1004l"); /* Disable focus tracking */
     printf("\033[?25h");
     fflush(stdout);
     endwin();
