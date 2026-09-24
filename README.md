@@ -33,6 +33,7 @@ When launched, MadSnake will:
 - When it reaches its maximum length, it instantly resets to its default length and picks a new color.
 - Pressing any keyboard key or clicking any mouse button immediately exits the screensaver and restores your original screen brightness.
 - The screensaver only consumes resources when active; it does not run silently in the background.
+- The mouse pointer is hidden at start and will get hidden again after 1 sec of inactivity in case if user intentionally moves the pointer i.e, it doesn't interrupt the screen saver. 
 
 ## Configuration
 
