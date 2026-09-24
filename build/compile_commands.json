@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/home/kunjan/Desktop/cpg/MadSnake/build",
+  "command": "/usr/bin/cc   -std=gnu17 -Wall -Wextra -Wpedantic -O2 -o CMakeFiles/madsnake.dir/src/madsnake.c.o -c /home/kunjan/Desktop/cpg/MadSnake/src/madsnake.c",
+  "file": "/home/kunjan/Desktop/cpg/MadSnake/src/madsnake.c",
+  "output": "CMakeFiles/madsnake.dir/src/madsnake.c.o"
+}
+]

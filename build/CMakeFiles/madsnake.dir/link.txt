@@ -1,0 +1,1 @@
+/usr/bin/cc -Wl,--dependency-file=CMakeFiles/madsnake.dir/link.d CMakeFiles/madsnake.dir/src/madsnake.c.o -o madsnake  -lncursesw -lm
