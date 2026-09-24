@@ -88,5 +88,5 @@ exec-once = hypridle
 If you step away from your keyboard and want to trigger the screensaver immediately without waiting 30 seconds, you can bind it to a keyboard shortcut. Add this to your `~/.config/hypr/hyprland.conf`:
 
 ```ini
-bind = SUPER, L, exec, madsnake
+bind = $mainMod, [your-key], exec, madsnake
 ```
