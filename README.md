@@ -7,7 +7,7 @@ A highly optimized, ultra-lightweight terminal screensaver for Hyprland.
 ## Requirements (Dependencies)
 
 - `hypridle`: For idle detection and triggering.
-- A modern terminal emulator (e.g., Kitty, Alacritty, Foot etc.)
+- A modern terminal emulator (i.e, Kitty, Alacritty, Foot)
 - `brightnessctl`: For dimming screen brightness.
 - `cmake` and `gcc`: For compiling.
 - `ncurses`: C library for rendering.
