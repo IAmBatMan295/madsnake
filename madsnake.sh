@@ -4,6 +4,12 @@
 SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 CONFIG_FILE="$HOME/.config/madsnake/config"
 
+# Do not trigger if the laptop lid is closed
+if grep -iq closed /proc/acpi/button/lid/*/state 2>/dev/null; then
+    exit 0
+fi
+
+
 dim_brightness="10%"
 
 if [ -f "$CONFIG_FILE" ]; then
