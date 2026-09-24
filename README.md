@@ -1,7 +1,6 @@
 # MadSnake Screensaver
 
 A highly optimized, ultra-lightweight terminal screensaver for Hyprland.
-MadSnake renders a seamless, high-resolution snake in the terminal that hunts for food and grows. To protect OLED displays from burn-in, it guarantees an absolute pitch-black background and automatically resets the snake's length and color when it reaches a configured limit.
 
 ## Requirements (Dependencies)
 
@@ -91,7 +90,3 @@ If you step away from your keyboard and want to trigger the screensaver immediat
 ```ini
 bind = SUPER, L, exec, madsnake
 ```
-
-## Performance
-
-The core screensaver is written in pure C using `ncurses`. It does not allocate memory dynamically during the main loop, avoids floating-point math in the render cycle, and sleeps efficiently between frames. It consumes extremely minimal CPU and RAM resources, ensuring your laptop runs cool and saves battery while idle.
