@@ -471,13 +471,6 @@ static int on_snake(int gx, int gy)
     return 0;
 }
 
-static int pos_valid(int gx, int gy)
-{
-    if (gx < 0 || gx >= grid_w || gy < 0 || gy >= grid_h)
-        return 0;
-    return !on_snake(gx, gy);
-}
-
 static void food_spawn(void)
 {
     int attempts = 0;
@@ -558,19 +551,29 @@ static void draw_food(void)
     }
 }
 
-/* ── BFS pathfinding ─────────────────────────────────────── */
+/* ── AI & Pathfinding ──────────────────────────────────── */
 
 #define MAX_GRID (300 * 120)
 
-static int bfs_find_dir(Pt start, Pt target)
+static int is_body(int gx, int gy, int ignore_tail)
 {
-    /* Allocate BFS arrays on stack (bounded by MAX_GRID) */
+    if (gx < 0 || gx >= grid_w || gy < 0 || gy >= grid_h) return 1;
+    for (int i = ignore_tail; i < slen; i++) {
+        Pt s = snake_at(i);
+        if (s.x == gx && s.y == gy) return 1;
+    }
+    return 0;
+}
+
+static int bfs_dist(Pt start, Pt target, int ignore_tail)
+{
     int total = grid_w * grid_h;
     if (total > MAX_GRID) total = MAX_GRID;
 
+    if (start.x == target.x && start.y == target.y) return 0;
+
     static int visited[MAX_GRID];
-    static int parent_dir[MAX_GRID]; /* direction taken to reach this cell */
-    static int qx[MAX_GRID], qy[MAX_GRID];
+    static int qx[MAX_GRID], qy[MAX_GRID], qd[MAX_GRID];
 
     memset(visited, 0, sizeof(int) * (size_t)total);
 
@@ -580,48 +583,36 @@ static int bfs_find_dir(Pt start, Pt target)
     int qfront = 0, qback = 0;
     qx[qback] = start.x;
     qy[qback] = start.y;
-    parent_dir[si] = -1;
+    qd[qback] = 0;
     qback++;
 
     while (qfront < qback) {
         int cx = qx[qfront];
         int cy = qy[qfront];
+        int cd = qd[qfront];
         qfront++;
-
-        if (cx == target.x && cy == target.y) {
-            /* Trace back to find the first step direction */
-            int tx = cx, ty = cy;
-            while (1) {
-                int idx = ty * grid_w + tx;
-                int d = parent_dir[idx];
-                /* Reverse one step */
-                int px = tx - DX[d];
-                int py = ty - DY[d];
-                if (px == start.x && py == start.y)
-                    return d; /* this is the direction from start */
-                tx = px;
-                ty = py;
-            }
-        }
 
         for (int d = 0; d < 4; d++) {
             int nx = cx + DX[d];
             int ny = cy + DY[d];
             if (nx < 0 || nx >= grid_w || ny < 0 || ny >= grid_h) continue;
+            
+            if (nx == target.x && ny == target.y) {
+                return cd + 1;
+            }
+
             int ni = ny * grid_w + nx;
-            if (ni >= total) continue;
             if (visited[ni]) continue;
-            if (on_snake(nx, ny)) continue;
+            if (is_body(nx, ny, ignore_tail)) continue;
+            
             visited[ni] = 1;
-            parent_dir[ni] = d;
             qx[qback] = nx;
             qy[qback] = ny;
+            qd[qback] = cd + 1;
             qback++;
-            if (qback >= total) break;
         }
     }
-
-    return -1; /* no path found */
+    return MAX_GRID;
 }
 
 /* ── Movement ────────────────────────────────────────────── */
@@ -629,52 +620,71 @@ static int bfs_find_dir(Pt start, Pt target)
 static void snake_move(void)
 {
     Pt head = snake_at(slen - 1);
+    
+    int best_dir = -1;
+    int min_food_dist = MAX_GRID;
+    
+    int best_safe_stall_dir = -1;
+    int max_tail_dist_safe = -1;
+    
+    int best_unsafe_dir = -1;
+    int max_tail_dist_unsafe = -1;
+    
+    for (int i = 0; i < 4; i++) {
+        int d = (sdir + ((i == 0) ? 0 : (i == 1) ? 1 : (i == 2) ? 3 : 2)) % 4;
+        int nx = head.x + DX[d];
+        int ny = head.y + DY[d];
+        
+        int ate_food = (nx == food.x && ny == food.y);
+        int ignore_tail = ate_food ? 0 : 1; 
 
-    /* Try BFS to food */
-    int dir = bfs_find_dir(head, food);
-
-    if (dir >= 0) {
-        sdir = dir;
-    } else {
-        /* No path to food — wander: pick any valid direction */
-        int dirs[4] = { sdir, (sdir + 1) % 4, (sdir + 3) % 4, (sdir + 2) % 4 };
-        int found = 0;
-        for (int i = 0; i < 4; i++) {
-            int nx = head.x + DX[dirs[i]];
-            int ny = head.y + DY[dirs[i]];
-            if (pos_valid(nx, ny)) {
-                sdir = dirs[i];
-                found = 1;
+        if (is_body(nx, ny, ignore_tail)) continue;
+        
+        Pt next = {nx, ny};
+        int d_food = bfs_dist(next, food, ignore_tail);
+        
+        Pt next_tail = ate_food ? snake_at(0) : snake_at(1);
+        int d_tail = bfs_dist(next, next_tail, ignore_tail); 
+        
+        int safe = (d_tail < MAX_GRID) || (nx == next_tail.x && ny == next_tail.y);
+        
+        if (safe) {
+            if (d_food < min_food_dist) {
+                min_food_dist = d_food;
+                best_dir = d;
+            }
+            if (d_tail > max_tail_dist_safe) {
+                max_tail_dist_safe = (d_tail == MAX_GRID) ? 0 : d_tail;
+                best_safe_stall_dir = d;
+            }
+        } else {
+            if (d_tail > max_tail_dist_unsafe) {
+                max_tail_dist_unsafe = (d_tail == MAX_GRID) ? 0 : d_tail;
+                best_unsafe_dir = d;
+            }
+        }
+    }
+    
+    if (best_dir == -1) {
+        if (best_safe_stall_dir != -1) {
+            best_dir = best_safe_stall_dir;
+        } else if (best_unsafe_dir != -1) {
+            best_dir = best_unsafe_dir;
+        }
+    }
+    
+    if (best_dir == -1) {
+        for (int d = 0; d < 4; d++) {
+            int nx = head.x + DX[d];
+            int ny = head.y + DY[d];
+            if (!is_body(nx, ny, 1)) {
+                best_dir = d;
                 break;
             }
         }
-        if (!found) return; /* completely stuck — skip frame */
     }
-
-    int nx = head.x + DX[sdir];
-    int ny = head.y + DY[sdir];
-
-    int ate = (nx == food.x && ny == food.y);
-
-    if (!ate) {
-        /* Erase old tail */
-        Pt old_tail = snake_at(0);
-        erase_cell(old_tail.x, old_tail.y);
-    }
-
-    /* Advance ring buffer */
-    shead = (shead + 1) % SNAKE_MAX;
-    sbuf[shead].x = nx;
-    sbuf[shead].y = ny;
-
-    if (ate) {
-        if (slen < SNAKE_MAX) slen++;
-        food_spawn();
-        draw_food();
-    }
-
-    if (slen >= cfg_max_length) {
-        /* OLED protection reset */
+    
+    if (best_dir == -1 || slen >= (grid_w * grid_h) - 1) {
         clear();
         pick_color();
         snake_init();
@@ -683,8 +693,37 @@ static void snake_move(void)
         draw_food();
         return;
     }
-
-    /* Redraw snake + food */
+    
+    sdir = best_dir;
+    int nx = head.x + DX[sdir];
+    int ny = head.y + DY[sdir];
+    int ate = (nx == food.x && ny == food.y);
+    
+    if (!ate) {
+        Pt old_tail = snake_at(0);
+        erase_cell(old_tail.x, old_tail.y);
+    }
+    
+    shead = (shead + 1) % SNAKE_MAX;
+    sbuf[shead].x = nx;
+    sbuf[shead].y = ny;
+    
+    if (ate) {
+        if (slen < SNAKE_MAX) slen++;
+        food_spawn();
+        draw_food();
+    }
+    
+    if (slen >= cfg_max_length) {
+        clear();
+        pick_color();
+        snake_init();
+        food_spawn();
+        snake_draw();
+        draw_food();
+        return;
+    }
+    
     snake_draw();
     draw_food();
 }
