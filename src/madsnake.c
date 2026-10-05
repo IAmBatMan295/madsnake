@@ -441,10 +441,15 @@ static void cursor_hide(void)
         size_t n = fread(buf, 1, sizeof(buf) - 1, pp);
         buf[n] = '\0';
         pclose(pp);
-        char *p = strstr(buf, "\"int\":");
-        if (p) orig_cursor_timeout = atoi(p + 6);
+        char *p = strstr(buf, "\"float\":");
+        if (p) {
+            orig_cursor_timeout = atoi(p + 8);
+        } else {
+            p = strstr(buf, "\"int\":");
+            if (p) orig_cursor_timeout = atoi(p + 6);
+        }
     }
-    system("hyprctl keyword cursor:inactive_timeout 1 > /dev/null 2>&1");
+    system("hyprctl eval \"hl.config({ cursor = { inactive_timeout = 1 } })\" > /dev/null 2>&1");
 }
 
 static void cursor_restore(void)
@@ -452,7 +457,7 @@ static void cursor_restore(void)
     if (orig_cursor_timeout >= 0) {
         char cmd[128];
         snprintf(cmd, sizeof(cmd),
-                 "hyprctl keyword cursor:inactive_timeout %d > /dev/null 2>&1",
+                 "hyprctl eval \"hl.config({ cursor = { inactive_timeout = %d } })\" > /dev/null 2>&1",
                  orig_cursor_timeout);
         system(cmd);
     }
