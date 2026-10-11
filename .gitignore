@@ -2,3 +2,4 @@ build/
 scratch/
 src-backup/
 .agents/
+self_tests/
