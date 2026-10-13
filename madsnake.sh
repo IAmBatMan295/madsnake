@@ -57,7 +57,7 @@ fi
 # Launch with specific configurations for tiny font and fullscreen
 case "$TERM_CMD" in
     *foot*)
-        foot -a madsnake -F -f "monospace:size=4" -e "$BIN_PATH" 2>/dev/null
+        foot -a madsnake -F -f "monospace:size=4" -o colors-dark.background=000000 -o colors-dark.alpha=1.0 -e "$BIN_PATH" 2>/dev/null
         ;;
     *kitty*)
         # kitty requires --single-instance to not background sometimes, but we want it to block.
